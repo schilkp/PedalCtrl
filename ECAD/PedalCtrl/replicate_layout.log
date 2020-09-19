@@ -1,0 +1,1 @@
+09-19 18:22:39 STDOUT 412:Git version check failed: Command '['git', 'describe', '--tags', '--abbrev=4', '--dirty=-*']' returned non-zero exit status 128

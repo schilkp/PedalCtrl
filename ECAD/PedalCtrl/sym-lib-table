@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name PIC12F1571_1572)(type Legacy)(uri ${KIPRJMOD}/PIC12F1571_1572/Symbol/PIC12F1571_1572.lib)(options "")(descr ""))
+  (lib (name Finder_40_62)(type Legacy)(uri ${KIPRJMOD}/Finder_40_62.lib)(options "")(descr ""))
+)
