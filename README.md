@@ -11,6 +11,10 @@ A very simple, PIC12F1572-based, footpedal-controlled, relay 250V Mains switch.
 
 Please don't work with mains-connected circuits unless you know what you are doing.
 
+## Status
+
+Waiting for PCB prototype to develop Firmware.
+
 ## Details
 
 Allows mains-powered devices to be quickly powered on and off using a footswitch.
