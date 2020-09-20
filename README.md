@@ -5,6 +5,8 @@ https://github.com/TheSchilk/PedalCtrl
 
 A very simple, PIC12F1572-based, footpedal-controlled, relay 250V Mains switch.
 
+![PCB Render](https://raw.githubusercontent.com/TheSchilk/PedalCtrl/master/Doc/pcb_render.png)
+
 ## Mandatory Warning
 
 Please don't work with mains-connected circuits unless you know what you are doing.
