@@ -7,7 +7,7 @@
 
 // CONFIG1
 #pragma config FOSC = INTOSC    // (INTOSC oscillator; I/O function on CLKIN pin)
-#pragma config WDTE = OFF       // Watchdog Timer Enable (WDT disabled)
+#pragma config WDTE = ON        // Watchdog Timer Enable (WDT enabled)
 #pragma config PWRTE = OFF      // Power-up Timer Enable (PWRT disabled)
 #pragma config MCLRE = ON       // MCLR Pin Function Select (MCLR/VPP pin function is MCLR)
 #pragma config CP = OFF         // Flash Program Memory Code Protection (Program memory code protection is disabled)
@@ -25,14 +25,25 @@
 #include <pic.h>
 #include <stdint.h>
 
-#define DEBOUNCE_TIME  50 // Time inputs are ignored after input in 10s of ms
-#define DBLPRESS_TIME  200 // Max interval to count as 'double press' in 10s of ms
+#define DEBOUNCE_TIME  25  // Time inputs are ignored after input in 10s of ms
+#define DBLPRESS_TIME  400 // Max interval to count as 'double press' in 10s of ms
+#define BLINK_TIME     100 // LED Blink period in 10s of ms
+
+// Coefficients to determine min and max length:
+// Min length in seconds: ADCSCALE_BASE / 100
+// Max length in seconds: (ADCSCALE_BASE + ADCSCALE_MULT*2^10) / 100
+#define ADCSCALE_MULT 90
+#define ADCSCALE_BASE 12000
+
 
 uint32_t debounce_count;
 uint8_t debounce_prevstate;
 
 uint32_t on_timer;
 uint32_t press_timer;
+
+uint32_t blink_timer;
+uint8_t  blink_state;
 
 typedef enum{
     state_off,
@@ -92,6 +103,7 @@ int main(int argc, char** argv) {
     debounce_count = 0;
     debounce_prevstate = PORTAbits.RA0;
     state = state_off;
+    blink_state = 0;
     
     // ===== Config Regular interrupt =====
     // Setup Timer 0 to overflow at aprox. 120Hz and trigger interrupt
@@ -155,7 +167,11 @@ void __interrupt() ISR(void){
                 state = state_timer;
                 
                 // Start timer
-                on_timer = 1000+(5*result);
+                on_timer = ADCSCALE_BASE+(ADCSCALE_MULT*result);
+                
+                // Reset Blinking
+                blink_state = 1;
+                blink_timer = BLINK_TIME;
                 
                 // Start double-press timer
                 press_timer = DBLPRESS_TIME;
@@ -165,7 +181,15 @@ void __interrupt() ISR(void){
         case state_timer:
             
             LATAbits.LATA2 = 1;
-            LATAbits.LATA5 = 1;    
+            LATAbits.LATA5 = blink_state;
+            
+            if(blink_timer == 0){
+                blink_timer = BLINK_TIME;
+                
+                blink_state = (blink_state) ? 0 : 1;    
+            } else {
+                blink_timer--;
+            }
             
             if(did_press){
                 if(press_timer == 0){
@@ -194,7 +218,7 @@ void __interrupt() ISR(void){
         case state_on:
             
             PORTAbits.RA2 = 1;
-            PORTAbits.RA5 = 0;
+            PORTAbits.RA5 = 1;
             
             if(did_press){
                 state = state_off;
